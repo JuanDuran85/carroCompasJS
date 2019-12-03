@@ -74,6 +74,34 @@ function insertandoItemDom(producto) {
             <button class="btn btn--danger btn--small" data-action="REMOVE_ITEM">&times;</button>
         </div>
     `);
+
+    if (document.querySelector(".cart-footer") === null) {
+        carroDOM.insertAdjacentHTML('afterend',`
+            <div class="cart-footer">
+                <button class="btn btn--danger" data-action="CLEAR_CART">Clear Cart</button>
+                <button class="btn btn--primary" data-action="PAY_CART">Pay</button>
+            </div>
+        `);
+        
+        document.querySelector('[data-action="CLEAR_CART"]').addEventListener('click',()=>{
+            carroDOM.querySelectorAll('.cart__item').forEach(carroItemDom => {
+                carroItemDom.classList.add('cart__item--removed');
+                setTimeout(()=>carroItemDom.remove(),250);
+            });
+    
+            carro = [];
+            localStorage.removeItem('carroLS');
+            document.querySelector(".cart-footer").remove();
+            botonesDelDomACarro.forEach(botonDomCarro => {
+                botonDomCarro.innerText = "Add to Cart"; //cambiando nombre en boton
+                botonDomCarro.disabled = false; //reactivando boton
+            });
+        });
+    
+        document.querySelector('[data-action="PAY_CART"]').addEventListener('click',()=>{
+    
+        });
+    };
 };
 
 function manejoDeBotones(botonDomCarro,producto) {
@@ -123,6 +151,7 @@ function botonX(carroItemDom,producto,botonDomCarro) {
     localStorage.setItem('carroLS',JSON.stringify(carro));
     botonDomCarro.innerText = "Add to Cart"; //cambiando nombre en boton
     botonDomCarro.disabled = false; //reactivando boton
+    document.querySelector(".cart-footer").remove();
 };
 
 
