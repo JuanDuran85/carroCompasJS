@@ -105,7 +105,30 @@ function insertandoItemDom(producto) {
         
         //usando el boton de pagar cuenta total
         document.querySelector('[data-action="PAY_CART"]').addEventListener('click',()=>{
-            
+            let paypalHTML = `
+                <form id="paypalFomulario" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+                    <input type="hidden" name="cmd" value="_cart">
+                    <input type="hidden" name="upload" value="1">
+                    <input type="hidden" name="business" value="duran_juan@hotmail.com">
+                `;   
+                
+                carro.forEach((carroItem,numero) => {
+                    ++numero;
+                    paypalHTML += `
+                        <input type="hidden" name="item_name_${numero}" value="${carroItem.nombre}">
+                        <input type="hidden" name="amount_${numero}" value="${carroItem.precio}">
+                        <input type="hidden" name="quantity_${numero}" value="${carroItem.cantidad}">
+                    `;
+                });
+
+                paypalHTML += `        
+                    <input type="submit" value="PayPal">
+                </form>
+                <div class="overlay"></div>
+                `;
+
+                document.querySelector('body').insertAdjacentHTML('beforeend',paypalHTML);
+                document.getElementById('paypalFomulario').submit();
         });
     };
 };
