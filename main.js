@@ -17,6 +17,7 @@ if (carro.length > 0) {
   carro.forEach(producto => {
      //se agrega productos al carro al presionar el boton (llamado a funcion)
      insertandoItemDom(producto)
+     cuentaCarroTotal();
 
     //se bloquean los botones de los productos que estan el carro y vienen del local storage
     botonesDelDomACarro.forEach(botonDomCarro => {
@@ -52,6 +53,7 @@ botonesDelDomACarro.forEach(botonDomCarro => {
 
             //guardando en localstorege los resultados del carro
             localStorage.setItem('carroLS',JSON.stringify(carro));
+            cuentaCarroTotal();
             
             //llamando a funcion de manejo de botones
             manejoDeBotones(botonDomCarro,producto);
@@ -75,6 +77,7 @@ function insertandoItemDom(producto) {
         </div>
     `);
 
+        //se agregan los botenes al carro de borrar y pagar
     if (document.querySelector(".cart-footer") === null) {
         carroDOM.insertAdjacentHTML('afterend',`
             <div class="cart-footer">
@@ -83,6 +86,7 @@ function insertandoItemDom(producto) {
             </div>
         `);
         
+        //usando el boton de borrar o clear
         document.querySelector('[data-action="CLEAR_CART"]').addEventListener('click',()=>{
             carroDOM.querySelectorAll('.cart__item').forEach(carroItemDom => {
                 carroItemDom.classList.add('cart__item--removed');
@@ -91,15 +95,17 @@ function insertandoItemDom(producto) {
     
             carro = [];
             localStorage.removeItem('carroLS');
+            cuentaCarroTotal();
             document.querySelector(".cart-footer").remove();
             botonesDelDomACarro.forEach(botonDomCarro => {
                 botonDomCarro.innerText = "Add to Cart"; //cambiando nombre en boton
                 botonDomCarro.disabled = false; //reactivando boton
             });
         });
-    
+        
+        //usando el boton de pagar cuenta total
         document.querySelector('[data-action="PAY_CART"]').addEventListener('click',()=>{
-    
+            
         });
     };
 };
@@ -120,6 +126,7 @@ function manejoDeBotones(botonDomCarro,producto) {
                 carroItemDom.querySelector('.cart__item__quantity').innerText = producto.cantidad;
                 carroItemDom.querySelector('[data-action="DECRESE_ITEM"]').classList.remove('btn--danger');
                 localStorage.setItem('carroLS',JSON.stringify(carro));
+                cuentaCarroTotal();
             });
 
             //disminuyendo cantidadcon boton -
@@ -128,6 +135,7 @@ function manejoDeBotones(botonDomCarro,producto) {
                     producto.cantidad--;
                     carroItemDom.querySelector('.cart__item__quantity').innerText = producto.cantidad;
                     localStorage.setItem('carroLS',JSON.stringify(carro));
+                    cuentaCarroTotal();
                 } else {
                     botonX(carroItemDom,producto,botonDomCarro); //llamando a funcion del boton x                         
                 };
@@ -149,10 +157,25 @@ function botonX(carroItemDom,producto,botonDomCarro) {
     setTimeout(()=>carroItemDom.remove(),290);
     carro = carro.filter(carroItem => (carroItem.nombre !== producto.nombre));
     localStorage.setItem('carroLS',JSON.stringify(carro));
+    cuentaCarroTotal();
     botonDomCarro.innerText = "Add to Cart"; //cambiando nombre en boton
     botonDomCarro.disabled = false; //reactivando boton
-    document.querySelector(".cart-footer").remove();
+    if (carro.length < 1) {
+        document.querySelector(".cart-footer").remove();
+    };
 };
 
+// funcion para totalizar el costo del pedido en el carro
+function cuentaCarroTotal() {
+    let carroTotal = 0;
+    carro.forEach(carroItem => {
+        carroTotal = carroTotal + (carroItem.cantidad * carroItem.precio);
+    });
+
+    if (carro.length >= 1) {
+        document.querySelector('[data-action="PAY_CART"]').innerText = `Pay $${carroTotal}`;
+    };
+    console.log(carroTotal);
+};
 
 
